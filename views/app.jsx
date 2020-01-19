@@ -24,7 +24,7 @@ class App extends React.Component {
                     "profile",
                     JSON.stringify(authResult.idTokenPayload)
                 );
-                window.locatio = window.location.href.suvstr(
+                window.location = window.location.href.substr(
                     0,
                     window.location.href.indexOf("#")
                 );
@@ -61,9 +61,8 @@ class App extends React.Component {
     render() {
         if (this.loggedIn) {
             return (<LoggedIn />);
-        } else {
-            return (<Home />);
         }
+        return (<Home />);
     }
 }
 
@@ -86,13 +85,15 @@ class Home extends React.Component {
     render() {
         return (
             <div className="container">
-        <div className="col-xs-8 col-xs-offset-2 jumbotron text-center">
-          <h1>Seo Eunu</h1>
-          <p>This is my web</p>
-          <p>sign in to get access</p>
-          <a onClick={this.authenticate} className="btn btn-primary btn-lg btn-login btn-block">Sign In</a>
-        </div>
-      </div>
+                <div className="row">
+                    <div className="col-xs-8 col-xs-offset-2 jumbotron text-center">
+                        <h1>Seo Eunu</h1>
+                        <p>This is my web</p>
+                        <p>sign in to get access</p>
+                        <a onClick={this.authenticate} className="btn btn-primary btn-lg btn-login btn-block">Sign In</a>
+                    </div>
+                </div>
+            </div>
         );
     }
 }
@@ -116,7 +117,7 @@ class LoggedIn extends React.Component {
     }
 
     serverRequest() {
-        $.get("http://localhost:8080/api/seo", res => {
+        $.get("http://localhost:3000/api/seo", res => {
             this.setState({
                 seos:res
             });
@@ -130,16 +131,14 @@ class LoggedIn extends React.Component {
     render() {
         return (
             <div className="container">
-                <div className="col-lg-12">
-                    <br />
-                    <span className="pull-right"><a onClick={this.logout}>logout</a></span>
-                    <h2>SeoEunu</h2>
-                    <p>Hi im nunu</p>
-                    <div className="row">
-                        {this.state.seos.map(function(seo, i){
-                            return (<Seo key={i} seo={seo} />);
-                        })}
-                    </div>
+                <br />
+                <span className="pull-right"><a onClick={this.logout}>logout</a></span>
+                <h2>SeoEunu</h2>
+                <p>Hi im nunu</p>
+                <div className="row">
+                    {this.state.seos.map(function(seo, i){
+                        return (<Seo key={i} seo={seo} />);
+                    })}
                 </div>
             </div>
         );
@@ -150,21 +149,22 @@ class Seo extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            seos: ""
-        }
+            eunu: "",
+            seos: []
+        };
         this.seo = this.seo.bind(this);
         this.serverRequest = this.serverRequest.bind(this);
     }
     seo(){
-        let seo = this.props.joke;
+        let seo = this.props.soe;
         this.serverRequest(seo);
     }
     serverRequest(seo) {
         $.post(
-            "http://localhost:8080/api/seo/eunu/" + seo.id,
+            "http://localhost:3000/api/seo/eunu/" + seo.id,
             { seos: 1},
             res => {
-                console.log("res.... ", res);
+                console.log("res... ", res);
                 this.setState({ eunu: "eunu!", seos: res});
                 this.props.seos = res;
             }
@@ -174,7 +174,10 @@ class Seo extends React.Component {
         return (
             <div className="col-xs-4">
                 <div className="panel panel-default">
-                    <div className="panel-heading">#{this.props.seo.id} <span className="pull-right">{this.state.seos}</span></div>
+                    <div className="panel-heading">
+                        #{this.props.seo.id} 
+                        <span className="pull-right">{this.state.seos}</span>
+                    </div>
                     <div className="panel-body">
                         {this.props.seo.seo}
                     </div>
@@ -186,7 +189,7 @@ class Seo extends React.Component {
                     </div>
                 </div>
             </div>
-        );
+        )
     }
 }
 

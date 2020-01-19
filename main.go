@@ -17,13 +17,14 @@ import (
 type Response struct {
 	Message string `json:"message"`
 }
+// Jwks stores a slice of JSON Web Keys
 type Jwks struct {
 	Keys []JSONWebKeys `json:"keys"`
 }
 type Seo struct {
 	ID int `json:"id" binding:"required`
-	Seos int `json:"seos"`
-	Eunu string `json:"eunu", binding:"required"`
+	Seos int `json:"seos"` //like
+	Eunu string `json:"eunu", binding:"required"` //jokes
 
 }
 
@@ -57,25 +58,26 @@ func main() {
 			if !checkAudience {
 				return token, errors.New("invalid audience.")
 			}
-		// verify iss claim
-		iss := os.Getenv("AUTHO_DOMAIN")
-		checkIss := token.Claims.(jwt.Mapclaims).VerifyIssuer(iss, false)
-		if !checkIss {
-			return token, errors.New("Invalid issuer")
-		}
+			// verify iss claim
+			iss := os.Getenv("AUTHO_DOMAIN")
+			checkIss := token.Claims.(jwt.MapClaims).VerifyIssuer(iss, false)
+			if !checkIss {
+				return token, errors.New("Invalid issuer")
+			}
 
-		cert, err := getPemCert(token)
-		if err != nil {
-			log.Fatalf("could not get cert: %+v", err)
-		}
-
-		result, _ := jwt.ParseRSAPublicFromPEM([]byte(cert))
-		return result, nil
-	},
+			cert, err := getPemCert(token)
+			if err != nil {
+				log.Fatalf("could not get cert: %+v", err)
+			}
+			
+			result, _ := jwt.ParseRSAPublicKeyFromPEM([]byte(cert))
+			return result, nil
+		},
 		SigningMethod: jwt.SigningMethodRS256,
 	})
 
-	jwtMiddleware = jwtMiddleWare
+	// register our actual jwtMiddleware 
+	jwtMiddleWare = jwtMiddleware
 	r := gin.Default()
 	// Serve frontend static files
 	r.Use(static.Serve("/", static.LocalFile("./views", true)))
@@ -92,7 +94,7 @@ func main() {
 	api.GET("/seo", authMiddleware(), SeoHandler)   // /api/seo
 	api.POST("/seo/eunu/:seoID", authMiddleware(), LikeSeo) // /api/seo/eunu/
 
-	r.Run() // localhost:8080
+	r.Run(":3000") // localhost:8080
 }
 
 func getPemCert(token *jwt.Token) (string, error) {
